@@ -101,7 +101,14 @@ export default class GitFetcher extends BaseFetcher {
 
       const hashStream = new crypto.HashStream();
 
-      const cachedStream = fs.createReadStream(tarballPath);
+      let cachedStream;
+      try {
+        cachedStream = fs.createReadStream(tarballPath);
+      } catch (err) {
+        reject(new MessageError(this.reporter.lang('unexpectedReadError', err.message, tarballPath), err.code));
+        return;
+      }
+
       cachedStream
         .pipe(hashStream)
         .pipe(untarStream)
